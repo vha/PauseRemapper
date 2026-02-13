@@ -1,16 +1,11 @@
 #include "main.hpp"
 
-#include "assets.hpp"
-
 #include "bsml/shared/BSML.hpp"
-#include "UI/UIManager.hpp"
-#include "bsml/shared/BSMLDataCache.hpp"
 #include "MainConfig.hpp"
 
 #include "lapiz/shared/zenject/Zenjector.hpp"
 #include "Installers/PauseRemapperInstaller.hpp"
 
-using namespace PauseRemapper::UI;
 using namespace GlobalNamespace;
 using namespace UnityEngine;
 
@@ -30,13 +25,23 @@ MOD_EXTERN_FUNC void late_load() noexcept
     getMainConfig().Init(modInfo);
 
     BSML::Init();
-    BSML::Register::RegisterGameplaySetupTab("Pause Remapper", MOD_ID "_settings", UIManager::New_ctor(), BSML::MenuType::All);
+    BSML::Register::RegisterGameplaySetupTab("Pause Remapper", [](UnityEngine::GameObject* go, bool firstActivation) {
+        if (!firstActivation) return;
+        auto container = BSML::Lite::CreateScrollableSettingsContainer(go->get_transform());
+        auto t = container->get_transform();
+
+        AddConfigValueToggle(t, getMainConfig().aButton);
+        AddConfigValueToggle(t, getMainConfig().bButton);
+        AddConfigValueToggle(t, getMainConfig().xButton);
+        AddConfigValueToggle(t, getMainConfig().yButton);
+        AddConfigValueToggle(t, getMainConfig().leftThumbstick);
+        AddConfigValueToggle(t, getMainConfig().rightThumbstick);
+        AddConfigValueToggle(t, getMainConfig().leftTrigger);
+        AddConfigValueToggle(t, getMainConfig().rightTrigger);
+        AddConfigValueToggle(t, getMainConfig().leftGrip);
+        AddConfigValueToggle(t, getMainConfig().rightGrip);
+    }, BSML::MenuType::All);
 
     auto zenjector = Lapiz::Zenject::Zenjector::Get();
     zenjector->Install<PauseRemapper::Installers::PauseRemapperInstaller*, GlobalNamespace::StandardGameplayInstaller*>();
-}
-
-BSML_DATACACHE(settings)
-{
-    return IncludedAssets::settings_bsml;
 }
