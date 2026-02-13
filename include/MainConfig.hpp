@@ -8,7 +8,7 @@ DECLARE_CONFIG(MainConfig,
     CONFIG_VALUE(xButton, bool, "X Button", false);
     CONFIG_VALUE(yButton, bool, "Y Button", false);
     CONFIG_VALUE(leftTrigger, bool, "Left Trigger", false);
-    CONFIG_VALUE(rightTrigger, bool, "Left Trigger", false);
+    CONFIG_VALUE(rightTrigger, bool, "Right Trigger", false);
     CONFIG_VALUE(leftGrip, bool, "Left Grip", false);
     CONFIG_VALUE(rightGrip, bool, "Right Grip", false);
     CONFIG_VALUE(leftThumbstick, bool, "Left Thumbstick", false);

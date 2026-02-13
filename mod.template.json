@@ -1,17 +1,16 @@
 {
   "$schema": "https://raw.githubusercontent.com/Lauriethefish/QuestPatcher.QMod/main/QuestPatcher.QMod/Resources/qmod.schema.json",
   "_QPVersion": "0.1.1",
-  "name": "Pause Remapper",
-  "id": "PauseRemapper",
+  "name": "${mod_name}",
+  "id": "${mod_id}",
   "author": "Speecil",
-  "version": "1.2.3",
-  "coverImage": "PauseRemapper.gif",
+  "version": "${version}",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.37.0_9064817954",
   "description": "Allows the user to change which buttons pause and resume the game!",
+  "coverImage": "${cover_image}",
   "dependencies": [],
-  "lateModFiles": ["${binary}"],
+  "modFiles": ["${binary}"],
   "libraryFiles": [],
-  "fileCopies": [],
-  "copyExtensions": []
+  "fileCopies": []
 }

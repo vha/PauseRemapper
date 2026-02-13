@@ -5,10 +5,11 @@
   "info": {
     "name": "Pause Remapper",
     "id": "PauseRemapper",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "url": null,
     "additionalData": {
-      "overrideSoName": "libPauseRemapper.so"
+      "overrideSoName": "libPauseRemapper.so",
+      "cmake": true
     }
   },
   "workspace": {
@@ -20,11 +21,14 @@
         "pwsh ./scripts/build.ps1 -clean"
       ],
       "copy": [
-        "pwsh ./scripts/copy.ps1"
+        "pwsh ./scripts/copy.ps1 $0:?"
       ],
       "logcat": [
-        "adb logcat -c",
         "pwsh ./scripts/start-logging.ps1"
+      ],
+      "qmod": [
+        "pwsh ./scripts/build.ps1",
+        "pwsh ./scripts/createqmod.ps1"
       ],
       "restart": [
         "pwsh ./scripts/restart-game.ps1"
@@ -43,27 +47,20 @@
     "qmodIncludeFiles": [
       "cover.gif"
     ],
-    "qmodOutput": "ParticleTuner"
+    "qmodOutput": "./PauseRemapper.qmod"
   },
   "dependencies": [
     {
       "id": "beatsaber-hook",
       "versionRange": "^5.1.0",
+      "additionalData": {}
+    },
+    {
+      "id": "scotland2",
+      "versionRange": "^0.1.4",
       "additionalData": {
-        "extraFiles": [
-          "src/inline-hook"
-        ]
+        "includeQmod": false
       }
-    },
-    {
-      "id": "bsml",
-      "versionRange": "^0.4.42",
-      "additionalData": {}
-    },
-    {
-      "id": "custom-types",
-      "versionRange": "^0.17.6",
-      "additionalData": {}
     },
     {
       "id": "paper",
@@ -76,13 +73,23 @@
       "additionalData": {}
     },
     {
-      "id": "lapiz",
-      "versionRange": "^0.2.11",
+      "id": "config-utils",
+      "versionRange": "^1.4.2",
       "additionalData": {}
     },
     {
-      "id": "config-utils",
-      "versionRange": "^1.4.2",
+      "id": "bsml",
+      "versionRange": "^0.4.42",
+      "additionalData": {}
+    },
+    {
+      "id": "custom-types",
+      "versionRange": "^0.17.6",
+      "additionalData": {}
+    },
+    {
+      "id": "lapiz",
+      "versionRange": "^0.2.11",
       "additionalData": {}
     }
   ]

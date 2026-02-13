@@ -14,6 +14,7 @@
 #include "GlobalNamespace/ComboController.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "GlobalNamespace/PauseController.hpp"
+#include "UnityEngine/UI/Button.hpp"
 #include <vector>
 #include "Zenject/ITickable.hpp"
 
@@ -27,6 +28,9 @@ using namespace GlobalNamespace;
 ___DECLARE_TYPE_WRAPPER_INHERITANCE(PauseRemapper, PauseRemapperController, Il2CppTypeEnum::IL2CPP_TYPE_CLASS, Il2CppObject, "PauseRemapper", INTERFACES, 0, nullptr,
                                     DECLARE_INSTANCE_FIELD_PRIVATE(PauseController*, _pauseController);
                                     DECLARE_INSTANCE_FIELD_PRIVATE(PauseMenuManager*, _pauseMenuManager);
+                                    DECLARE_INSTANCE_FIELD_PRIVATE(UnityEngine::UI::Button*, _backButton);
+                                    DECLARE_INSTANCE_FIELD_PRIVATE(UnityEngine::UI::Button*, _restartButton);
+                                    DECLARE_INSTANCE_FIELD_PRIVATE(UnityEngine::UI::Button*, _continueButton);
                                     DECLARE_CTOR(ctor, PauseController* pauseController, PauseMenuManager* pauseMenuManager);
                                     DECLARE_OVERRIDE_METHOD(void, Initialize, il2cpp_utils::il2cpp_type_check::MetadataGetter<&::Zenject::IInitializable::Initialize>::methodInfo());
                                     DECLARE_OVERRIDE_METHOD(void, Dispose, il2cpp_utils::il2cpp_type_check::MetadataGetter<&::System::IDisposable::Dispose>::methodInfo());
@@ -36,6 +40,7 @@ ___DECLARE_TYPE_WRAPPER_INHERITANCE(PauseRemapper, PauseRemapperController, Il2C
                                         bool buttonPressed;
                                         void PauseTrigger();
                                         void OnPause();
+                                        void CachePauseMenuButtons();
                                     )
 
 #undef INTERFACES

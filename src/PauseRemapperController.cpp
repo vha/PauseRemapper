@@ -3,10 +3,11 @@
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/AudioSource.hpp"
+#include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/UI/Button.hpp"
 #include "MainConfig.hpp"
 #include "main.hpp"
 #include "GlobalNamespace/OVRInput.hpp"
-#include "Logging.hpp"
 #include "System/Action.hpp"
 #include "lapiz/shared/utilities/MainThreadScheduler.hpp"
 
@@ -14,6 +15,7 @@ DEFINE_TYPE(PauseRemapper, PauseRemapperController);
 
 using namespace UnityEngine;
 using namespace System::Threading::Tasks;
+using namespace UnityEngine::UI;
 
 namespace PauseRemapper
 {
@@ -22,76 +24,111 @@ namespace PauseRemapper
         INVOKE_CTOR();
         _pauseController = pauseController;
         _pauseMenuManager = pauseMenuManager;
-        INFO("Constructed PauseRemapper Controller");
+        PaperLogger.info("Constructed PauseRemapper Controller");
     }
 
     void PauseRemapperController::Initialize()
     {
-        INFO("Initialised PauseRemapper Controller");
+        PaperLogger.info("Initialised PauseRemapper Controller");
     }
 
     void PauseRemapperController::Dispose()
     {
-        INFO("Disposed PauseRemapper Controller");
+        PaperLogger.info("Disposed PauseRemapper Controller");
+    }
+
+    void PauseRemapperController::CachePauseMenuButtons()
+    {
+        // Find buttons by name instead of accessing private fields
+        if (!_pauseMenuManager) return;
+        
+        auto transform = _pauseMenuManager->get_transform();
+        if (!transform) return;
+
+        // Try to find buttons by searching the hierarchy
+        auto FindButton = [&](std::string name) -> Button* {
+            auto child = transform->Find(name);
+            if (child) {
+                return child->GetComponent<Button*>();
+            }
+            return nullptr;
+        };
+
+        // Common button names in Beat Saber pause menu
+        _backButton = FindButton("BackButton");
+        _restartButton = FindButton("RestartButton");
+        _continueButton = FindButton("ContinueButton");
+
+        // Try alternative names if not found
+        if (!_backButton) _backButton = FindButton("Back");
+        if (!_restartButton) _restartButton = FindButton("Restart");
+        if (!_continueButton) _continueButton = FindButton("Continue");
     }
     
     void PauseRemapperController::PauseTrigger()
     {
-        INFO("A Selected Pause Button Was Clicked/Pressed");
-        timeHeld += UnityEngine::Time::get_deltaTime(); // increase time held
-        // Check that the user is within gameplay (not menu)
-        if (_pauseController && _pauseController->___m_CachedPtr.m_value && _pauseController->____paused && timeHeld >= 1 && timeHeld < 1.1)
+        PaperLogger.info("A Selected Pause Button Was Clicked/Pressed");
+        timeHeld += UnityEngine::Time::get_deltaTime();
+        
+        // Use public methods instead of private field access
+        if (_pauseController && _pauseController->___m_CachedPtr.m_value && _pauseController->_paused && timeHeld >= 1 && timeHeld < 1.1)
         {
-            _pauseMenuManager->ContinueButtonPressed();
+            if (_pauseMenuManager) {
+                _pauseMenuManager->ContinueButtonPressed();
+            }
         }
         else if (_pauseController && _pauseController->___m_CachedPtr.m_value && _pauseController->get_canPause() && timeHeld < 0.6)
         {
-            _pauseController->Pause(), INFO("Successfully Paused!");
-            _pauseMenuManager->____backButton->set_interactable(false);
-            _pauseMenuManager->____restartButton->set_interactable(false);
-            _pauseMenuManager->____continueButton->set_interactable(false);
+            // Cache buttons before pausing
+            CachePauseMenuButtons();
+            
+            _pauseController->Pause();
+            PaperLogger.info("Successfully Paused!");
+            
+            // Disable buttons using cached references
+            if (_backButton) _backButton->set_interactable(false);
+            if (_restartButton) _restartButton->set_interactable(false);
+            if (_continueButton) _continueButton->set_interactable(false);
 
             std::thread([=]()
-                {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
-            Lapiz::Utilities::MainThreadScheduler::Schedule([=](){
-                _pauseMenuManager->____backButton->set_interactable(true);
-                _pauseMenuManager->____restartButton->set_interactable(true);
-                _pauseMenuManager->____continueButton->set_interactable(true);
-                }); })
-            .detach();
-
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                Lapiz::Utilities::MainThreadScheduler::Schedule([=](){
+                    if (_backButton) _backButton->set_interactable(true);
+                    if (_restartButton) _restartButton->set_interactable(true);
+                    if (_continueButton) _continueButton->set_interactable(true);
+                });
+            }).detach();
         }
         return;
     }
 
-    #include <unordered_map>
-    std::unordered_map<bool, GlobalNamespace::OVRInput::Button> buttonMapping = {
-        {getMainConfig().aButton.GetValue(), GlobalNamespace::OVRInput::Button::One},
-        {getMainConfig().bButton.GetValue(), GlobalNamespace::OVRInput::Button::Two},
-        {getMainConfig().xButton.GetValue(), GlobalNamespace::OVRInput::Button::Three},
-        {getMainConfig().yButton.GetValue(), GlobalNamespace::OVRInput::Button::Four},
-        {getMainConfig().leftTrigger.GetValue(), GlobalNamespace::OVRInput::Button::PrimaryIndexTrigger},
-        {getMainConfig().rightTrigger.GetValue(), GlobalNamespace::OVRInput::Button::SecondaryIndexTrigger},
-        {getMainConfig().leftGrip.GetValue(), GlobalNamespace::OVRInput::Button::PrimaryHandTrigger},
-        {getMainConfig().rightGrip.GetValue(), GlobalNamespace::OVRInput::Button::SecondaryHandTrigger},
-        {getMainConfig().leftThumbstick.GetValue(), GlobalNamespace::OVRInput::Button::SecondaryThumbstick},
-        {getMainConfig().rightThumbstick.GetValue(), GlobalNamespace::OVRInput::Button::PrimaryThumbstick}
-    };
-    
     void PauseRemapperController::Tick()
     {
-        for (const auto& button : buttonMapping)
-        {
-            if (button.first && GlobalNamespace::OVRInput::Get(button.second, OVRInput::Controller::Touch))
-            {
-                buttonPressed = true;
-                break;
-            }
-        }
+        // Check each enabled button individually
+        if (getMainConfig().aButton.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::One, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().bButton.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::Two, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().xButton.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::Three, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().yButton.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::Four, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().leftTrigger.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::PrimaryIndexTrigger, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().rightTrigger.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::SecondaryIndexTrigger, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().leftGrip.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::PrimaryHandTrigger, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().rightGrip.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::SecondaryHandTrigger, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().leftThumbstick.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::SecondaryThumbstick, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
+        else if (getMainConfig().rightThumbstick.GetValue() && GlobalNamespace::OVRInput::Get(GlobalNamespace::OVRInput::Button::PrimaryThumbstick, GlobalNamespace::OVRInput::Controller::Touch))
+            buttonPressed = true;
 
         if (buttonPressed) PauseTrigger();
         else timeHeld = 0;
         buttonPressed = false;
-    }   
+    }
 }
