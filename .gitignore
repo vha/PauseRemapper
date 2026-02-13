@@ -68,3 +68,4 @@ extern.cmake
 mod.json.schema
 /.cache
 android-sdk/
+reference-addons/

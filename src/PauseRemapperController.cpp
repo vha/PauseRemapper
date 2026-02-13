@@ -70,33 +70,35 @@ namespace PauseRemapper
         PaperLogger.info("A Selected Pause Button Was Clicked/Pressed");
         timeHeld += UnityEngine::Time::get_deltaTime();
         
-        // Use public methods instead of private field access
-        if (_pauseController && _pauseController->___m_CachedPtr.m_value && _pauseController->_paused && timeHeld >= 1 && timeHeld < 1.1)
+        if (_pauseController && _pauseController->_paused && timeHeld >= 1 && timeHeld < 1.1)
         {
             if (_pauseMenuManager) {
                 _pauseMenuManager->ContinueButtonPressed();
             }
         }
-        else if (_pauseController && _pauseController->___m_CachedPtr.m_value && _pauseController->get_canPause() && timeHeld < 0.6)
+        else if (_pauseController && _pauseController->get_canPause() && timeHeld < 0.6)
         {
-            // Cache buttons before pausing
-            CachePauseMenuButtons();
-            
             _pauseController->Pause();
             PaperLogger.info("Successfully Paused!");
             
-            // Disable buttons using cached references
-            if (_backButton) _backButton->set_interactable(false);
-            if (_restartButton) _restartButton->set_interactable(false);
-            if (_continueButton) _continueButton->set_interactable(false);
-
-            std::thread([=]()
+            std::thread([this]()
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(300));
-                Lapiz::Utilities::MainThreadScheduler::Schedule([=](){
-                    if (_backButton) _backButton->set_interactable(true);
-                    if (_restartButton) _restartButton->set_interactable(true);
-                    if (_continueButton) _continueButton->set_interactable(true);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                Lapiz::Utilities::MainThreadScheduler::Schedule([this](){
+                    CachePauseMenuButtons();
+                    if (_backButton) _backButton->set_interactable(false);
+                    if (_restartButton) _restartButton->set_interactable(false);
+                    if (_continueButton) _continueButton->set_interactable(false);
+                    
+                    std::thread([this]()
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                        Lapiz::Utilities::MainThreadScheduler::Schedule([this](){
+                            if (_backButton) _backButton->set_interactable(true);
+                            if (_restartButton) _restartButton->set_interactable(true);
+                            if (_continueButton) _continueButton->set_interactable(true);
+                        });
+                    }).detach();
                 });
             }).detach();
         }

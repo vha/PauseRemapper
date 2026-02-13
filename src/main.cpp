@@ -5,7 +5,7 @@
 #include "bsml/shared/BSML.hpp"
 #include "UI/UIManager.hpp"
 #include "bsml/shared/BSMLDataCache.hpp"
-
+#include "MainConfig.hpp"
 
 #include "lapiz/shared/zenject/Zenjector.hpp"
 #include "Installers/PauseRemapperInstaller.hpp"
@@ -26,6 +26,8 @@ MOD_EXTERN_FUNC void late_load() noexcept
 {
     il2cpp_functions::Init();
     custom_types::Register::AutoRegister();
+
+    getMainConfig().Init(modInfo);
 
     BSML::Init();
     BSML::Register::RegisterGameplaySetupTab("Pause Remapper", MOD_ID "_settings", UIManager::New_ctor(), BSML::MenuType::All);

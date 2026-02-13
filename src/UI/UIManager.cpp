@@ -19,29 +19,19 @@ namespace PauseRemapper::UI
         auto t = get_transform();
 
         // ABXY Buttons
-        BSML::Lite::CreateToggle(t, "A Button", getMainConfig().aButton.GetValue(), 
-            [](bool value) { getMainConfig().aButton.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "B Button", getMainConfig().bButton.GetValue(), 
-            [](bool value) { getMainConfig().bButton.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "X Button", getMainConfig().xButton.GetValue(), 
-            [](bool value) { getMainConfig().xButton.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "Y Button", getMainConfig().yButton.GetValue(), 
-            [](bool value) { getMainConfig().yButton.SetValue(value); });
+        AddConfigValueToggle(t, getMainConfig().aButton);
+        AddConfigValueToggle(t, getMainConfig().bButton);
+        AddConfigValueToggle(t, getMainConfig().xButton);
+        AddConfigValueToggle(t, getMainConfig().yButton);
 
         // Thumbsticks
-        BSML::Lite::CreateToggle(t, "Left Thumbstick", getMainConfig().leftThumbstick.GetValue(), 
-            [](bool value) { getMainConfig().leftThumbstick.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "Right Thumbstick", getMainConfig().rightThumbstick.GetValue(), 
-            [](bool value) { getMainConfig().rightThumbstick.SetValue(value); });
+        AddConfigValueToggle(t, getMainConfig().leftThumbstick);
+        AddConfigValueToggle(t, getMainConfig().rightThumbstick);
 
         // Triggers and Grips
-        BSML::Lite::CreateToggle(t, "Left Trigger", getMainConfig().leftTrigger.GetValue(), 
-            [](bool value) { getMainConfig().leftTrigger.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "Right Trigger", getMainConfig().rightTrigger.GetValue(), 
-            [](bool value) { getMainConfig().rightTrigger.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "Left Grip", getMainConfig().leftGrip.GetValue(), 
-            [](bool value) { getMainConfig().leftGrip.SetValue(value); });
-        BSML::Lite::CreateToggle(t, "Right Grip", getMainConfig().rightGrip.GetValue(), 
-            [](bool value) { getMainConfig().rightGrip.SetValue(value); });
+        AddConfigValueToggle(t, getMainConfig().leftTrigger);
+        AddConfigValueToggle(t, getMainConfig().rightTrigger);
+        AddConfigValueToggle(t, getMainConfig().leftGrip);
+        AddConfigValueToggle(t, getMainConfig().rightGrip);
     }
 }
